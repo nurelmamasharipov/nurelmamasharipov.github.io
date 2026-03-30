@@ -166,3 +166,44 @@ document.addEventListener('DOMContentLoaded', () => {
     Kanban.init();
     Pomodoro.init();
 });
+
+// --- NAVIGATION LOGIC ---
+const Navigation = {
+    init() {
+        this.links = document.querySelectorAll('.sidebar nav a');
+        this.sections = document.querySelectorAll('main > section'); // Все секции контента
+
+        this.links.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('data-target');
+                this.switchTab(link, targetId);
+            });
+        });
+    },
+
+    switchTab(activeLink, targetId) {
+        // Убираем активный класс у всех ссылок
+        this.links.forEach(link => link.classList.remove('active'));
+        activeLink.classList.add('active');
+
+        // Скрываем все секции и показываем нужную
+        this.sections.forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        const activeSection = document.getElementById(targetId);
+        if (activeSection) {
+            // Добавляем плавное появление
+            activeSection.style.display = 'block';
+            activeSection.style.animation = 'fadeIn 0.3s ease-in-out';
+        }
+    }
+};
+
+// Добавь это в инициализацию в самом низу файла:
+document.addEventListener('DOMContentLoaded', () => {
+    // Kanban.init();
+    // Pomodoro.init();
+    Navigation.init(); 
+});
