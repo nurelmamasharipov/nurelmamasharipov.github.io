@@ -1,26 +1,61 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width">
-  <title>Мои напоминания</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusApp | Productivity</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>Напоминалка</h1>
+    <div class="app-container">
+        <aside class="sidebar glass-panel">
+            <div class="logo">
+                <i class="ph-fill ph-infinity"></i>
+                <span>FocusApp</span>
+            </div>
+            <nav>
+                <a href="#" class="active"><i class="ph ph-kanban"></i> Tasks</a>
+                <a href="#"><i class="ph ph-timer"></i> Pomodoro</a>
+                <a href="#"><i class="ph ph-calendar"></i> Calendar</a>
+                <a href="#"><i class="ph ph-chart-bar"></i> Statistics</a>
+            </nav>
+        </aside>
 
-    <!-- Форма добавления -->
-    <div class="add-form">
-      <input type="text" id="taskInput"
-             placeholder="Добавить напоминание...">
-      <input type="datetime-local" id="timeInput">
-      <button onclick="addReminder()">Добавить</button>
+        <main class="content">
+            <header>
+                <h1>Task Management</h1>
+                <button class="btn-primary" id="addTaskBtn">
+                    <i class="ph ph-plus"></i> New Task
+                </button>
+            </header>
+
+            <section class="kanban-board">
+                <div class="column glass-panel" data-status="todo">
+                    <h2>To Do</h2>
+                    <div class="task-list" id="todo-list"></div>
+                </div>
+                <div class="column glass-panel" data-status="progress">
+                    <h2>In Progress</h2>
+                    <div class="task-list" id="progress-list"></div>
+                </div>
+                <div class="column glass-panel" data-status="done">
+                    <h2>Done</h2>
+                    <div class="task-list" id="done-list"></div>
+                </div>
+            </section>
+
+            <section class="pomodoro-widget glass-panel">
+                <h2>Focus Timer</h2>
+                <div class="timer-display" id="timer">25:00</div>
+                <div class="timer-controls">
+                    <button class="btn-secondary" id="startTimer">Start</button>
+                    <button class="btn-secondary" id="pauseTimer">Pause</button>
+                    <button class="btn-secondary" id="resetTimer">Reset</button>
+                </div>
+            </section>
+        </main>
     </div>
-
-    <!-- Список напоминаний -->
-    <ul id="reminderList"></ul>
-  </div>
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
