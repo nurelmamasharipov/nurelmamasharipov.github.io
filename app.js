@@ -1,69 +1,168 @@
-// Загружаем напоминания из памяти браузера
-let reminders = JSON.parse(
-  localStorage.getItem('reminders') || '[]'
-);
+// --- STATE MANAGEMENT (localStorage) ---
+const Storage = {
+    getTasks: () => JSON.parse(localStorage.getItem('tasks')) || [],
+    saveTasks: (tasks) => localStorage.setItem('tasks', JSON.stringify(tasks)),
+};
 
-function addReminder() {
-  const text = document.getElementById('taskInput').value;
-  const time = document.getElementById('timeInput').value;
-  if (!text.trim()) return;
-
-  const item = { id: Date.now(), text, time, done: false };
-  reminders.push(item);
-  save();
-  render();
-
-  // Очищаем поля
-  document.getElementById('taskInput').value = '';
-  document.getElementById('timeInput').value = '';
+// Initial dummy data if empty
+if (Storage.getTasks().length === 0) {
+    Storage.saveTasks([
+        { id: '1', title: 'Design Database Schema', status: 'todo', priority: 'High' },
+        { id: '2', title: 'Setup GitHub Pages', status: 'progress', priority: 'Urgent' },
+        { id: '3', title: 'Create Wireframes', status: 'done', priority: 'Medium' }
+    ]);
 }
 
-function save() {
-  localStorage.setItem('reminders', JSON.stringify(reminders));
-}
+// --- KANBAN LOGIC ---
+const Kanban = {
+    init() {
+        this.render();
+        this.setupDragAndDrop();
+        
+        document.getElementById('addTaskBtn').addEventListener('click', () => {
+            const title = prompt('Enter task title:');
+            if (title) this.addTask(title);
+        });
+    },
 
-function render() {
-  const list = document.getElementById('reminderList');
-  list.innerHTML = reminders.map(r => `
-    <li class="reminder-item">
-      <span class="${r.done ? 'done' : ''}"
-            onclick="toggleDone(${r.id})">
-        ${r.text}
-        ${r.time ? '<br><small>' + formatTime(r.time) + '</small>' : ''}
-      </span>
-      <button class="delete-btn"
-              onclick="deleteItem(${r.id})">✕</button>
-    </li>
-  `).join('');
-}
+    getPriorityColor(priority) {
+        const colors = { 'Low': '#4caf50', 'Medium': '#ff9800', 'High': '#f44336', 'Urgent': '#d50000' };
+        return colors[priority] || colors['Low'];
+    },
 
-function toggleDone(id) {
-  reminders = reminders.map(r =>
-    r.id === id ? { ...r, done: !r.done } : r
-  );
-  save(); render();
-}
+    render() {
+        const tasks = Storage.getTasks();
+        document.querySelectorAll('.task-list').forEach(list => list.innerHTML = '');
 
-function deleteItem(id) {
-  reminders = reminders.filter(r => r.id !== id);
-  save(); render();
-}
+        tasks.forEach(task => {
+            const el = document.createElement('div');
+            el.className = 'task-card';
+            el.draggable = true;
+            el.dataset.id = task.id;
+            el.innerHTML = `
+                <div class="task-title">${task.title}</div>
+                <div class="task-meta">
+                    <span class="priority-indicator" style="background: ${this.getPriorityColor(task.priority)}20; color: ${this.getPriorityColor(task.priority)}">
+                        ${task.priority}
+                    </span>
+                </div>
+            `;
+            document.getElementById(`${task.status}-list`).appendChild(el);
+        });
+    },
 
-function formatTime(t) {
-  return new Date(t).toLocaleString('ru');
-}
+    addTask(title) {
+        const tasks = Storage.getTasks();
+        tasks.push({
+            id: Date.now().toString(),
+            title,
+            status: 'todo',
+            priority: 'Medium' // Default
+        });
+        Storage.saveTasks(tasks);
+        this.render();
+    },
 
-// Проверка времени каждую минуту
-setInterval(() => {
-  const now = new Date();
-  reminders.forEach(r => {
-    if (r.time && !r.done) {
-      const diff = new Date(r.time) - now;
-      if (diff > 0 && diff < 60000) {
-        alert(`Напоминание: ${r.text}`);
-      }
+    setupDragAndDrop() {
+        const board = document.querySelector('.kanban-board');
+        let draggedItem = null;
+
+        board.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('task-card')) {
+                draggedItem = e.target;
+                setTimeout(() => e.target.style.opacity = '0.5', 0);
+            }
+        });
+
+        board.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('task-card')) {
+                setTimeout(() => {
+                    e.target.style.opacity = '1';
+                    draggedItem = null;
+                }, 0);
+            }
+        });
+
+        board.addEventListener('dragover', (e) => e.preventDefault());
+
+        board.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const column = e.target.closest('.column');
+            if (column && draggedItem) {
+                const list = column.querySelector('.task-list');
+                list.appendChild(draggedItem);
+                
+                // Update LocalStorage
+                const taskId = draggedItem.dataset.id;
+                const newStatus = column.dataset.status;
+                const tasks = Storage.getTasks();
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.status = newStatus;
+                    Storage.saveTasks(tasks);
+                }
+            }
+        });
     }
-  });
-}, 60000);
+};
 
-render(); // Отображаем при загрузке
+// --- POMODORO LOGIC ---
+const Pomodoro = {
+    timeLeft: 25 * 60,
+    timerId: null,
+    
+    init() {
+        this.display = document.getElementById('timer');
+        document.getElementById('startTimer').addEventListener('click', () => this.start());
+        document.getElementById('pauseTimer').addEventListener('click', () => this.pause());
+        document.getElementById('resetTimer').addEventListener('click', () => this.reset());
+        this.updateDisplay();
+    },
+
+    start() {
+        if (this.timerId) return;
+        this.timerId = setInterval(() => {
+            this.timeLeft--;
+            this.updateDisplay();
+            if (this.timeLeft <= 0) {
+                this.pause();
+                this.playSound();
+                alert('Focus session complete!');
+            }
+        }, 1000);
+    },
+
+    pause() {
+        clearInterval(this.timerId);
+        this.timerId = null;
+    },
+
+    reset() {
+        this.pause();
+        this.timeLeft = 25 * 60; // 25 minutes
+        this.updateDisplay();
+    },
+
+    updateDisplay() {
+        const minutes = Math.floor(this.timeLeft / 60).toString().padStart(2, '0');
+        const seconds = (this.timeLeft % 60).toString().padStart(2, '0');
+        this.display.textContent = `${minutes}:${seconds}`;
+    },
+
+    playSound() {
+        // Simple beep using Web Audio API so no external files are needed
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, ctx.currentTime);
+        osc.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.5);
+    }
+};
+
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    Kanban.init();
+    Pomodoro.init();
+});
