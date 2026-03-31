@@ -4,7 +4,6 @@ const Storage = {
     saveTasks: (tasks) => localStorage.setItem('tasks', JSON.stringify(tasks)),
 };
 
-// Initial dummy data if empty
 if (Storage.getTasks().length === 0) {
     Storage.saveTasks([
         { id: '1', title: 'Design Database Schema', status: 'todo', priority: 'High' },
@@ -21,6 +20,15 @@ const Kanban = {
 
         document.getElementById('addTaskBtn').addEventListener('click', () => {
             Modal.open();
+        });
+
+        // Delete вЂ” event delegation РЅР° РІСЃРµР№ РґРѕСЃРєРµ
+        document.querySelector('.kanban-board').addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.task-delete');
+            if (deleteBtn) {
+                e.stopPropagation();
+                this.deleteTask(deleteBtn.dataset.id);
+            }
         });
     },
 
@@ -39,7 +47,12 @@ const Kanban = {
             el.draggable = true;
             el.dataset.id = task.id;
             el.innerHTML = `
-                <div class="task-title">${task.title}</div>
+                <div class="task-card-header">
+                    <div class="task-title">${task.title}</div>
+                    <button class="task-delete" data-id="${task.id}" title="Delete task">
+                        <i class="ph ph-x"></i>
+                    </button>
+                </div>
                 <div class="task-meta">
                     <span class="priority-indicator" style="background: ${this.getPriorityColor(task.priority)}20; color: ${this.getPriorityColor(task.priority)}">
                         ${task.priority}
@@ -58,6 +71,13 @@ const Kanban = {
             status: 'todo',
             priority
         });
+        Storage.saveTasks(tasks);
+        this.render();
+    },
+
+    deleteTask(id) {
+        let tasks = Storage.getTasks();
+        tasks = tasks.filter(t => t.id !== id);
         Storage.saveTasks(tasks);
         this.render();
     },
@@ -216,31 +236,35 @@ const Modal = {
 // --- NAVIGATION LOGIC ---
 const Navigation = {
     init() {
-        this.links = document.querySelectorAll('.sidebar nav a');
+        this.links    = document.querySelectorAll('.sidebar nav a');
         this.sections = document.querySelectorAll('main > section');
 
-        this.links.forEach(link => {
+        // РџСЂРё СЃС‚Р°СЂС‚Рµ РїРѕРєР°Р·С‹РІР°РµРј С‚РѕР»СЊРєРѕ РїРµСЂРІСѓСЋ СЃРµРєС†РёСЋ
+        this.sections.forEach((s, i) => {
+            s.style.display = i === 0 ? 'block' : 'none';
+        });
+
+        this.links.forEach((link, index) => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const targetId = link.getAttribute('data-target');
-                this.switchTab(link, targetId);
+                this.switchTab(index);
             });
         });
     },
 
-    switchTab(activeLink, targetId) {
-        this.links.forEach(link => link.classList.remove('active'));
-        activeLink.classList.add('active');
-
-        this.sections.forEach(section => {
-            section.style.display = 'none';
+    switchTab(activeIndex) {
+        this.links.forEach((link, i) => {
+            link.classList.toggle('active', i === activeIndex);
         });
 
-        const activeSection = document.getElementById(targetId);
-        if (activeSection) {
-            activeSection.style.display = 'block';
-            activeSection.style.animation = 'fadeIn 0.3s ease-in-out';
-        }
+        this.sections.forEach((section, i) => {
+            if (i === activeIndex) {
+                section.style.display = 'block';
+                section.style.animation = 'fadeIn 0.3s ease-in-out';
+            } else {
+                section.style.display = 'none';
+            }
+        });
     }
 };
 
