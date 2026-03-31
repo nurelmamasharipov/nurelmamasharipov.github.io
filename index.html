@@ -1,106 +1,250 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FocusApp | Productivity</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-</head>
-<!-- Вставь прямо перед </body> -->
-<div class="modal-overlay" id="taskModal">
-    <div class="modal glass-panel">
-        <div class="modal-header">
-            <h2><i class="ph ph-plus-circle"></i> New Task</h2>
-            <button class="modal-close" id="closeModal"><i class="ph ph-x"></i></button>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FocusFlow | Планер и таймер</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero__text">
+          <p class="eyebrow">Проект для поступления</p>
+          <h1>FocusFlow</h1>
+          <p class="hero__lead">
+            Спокойный и современный планер с задачами, прогрессом и круговым
+            таймером для фокусной работы.
+          </p>
+          <div class="hero__stats">
+            <article class="stat-card">
+              <span id="statTotal">0</span>
+              <p>Всего задач</p>
+            </article>
+            <article class="stat-card">
+              <span id="statDone">0</span>
+              <p>Завершено</p>
+            </article>
+            <article class="stat-card">
+              <span id="statFocus">25</span>
+              <p>Минут в фокусе</p>
+            </article>
+          </div>
         </div>
-
-        <div class="modal-body">
-            <div class="form-group">
-                <label>Task Title</label>
-                <input type="text" id="taskTitleInput" class="task-input" placeholder="What needs to be done?" autocomplete="off"/>
-            </div>
-
-            <div class="form-group">
-                <label>Complexity</label>
-                <div class="complexity-grid">
-                    <button class="complexity-btn" data-value="Low">
-                        <span class="complexity-dot" style="background: #4caf50"></span>
-                        Low
-                    </button>
-                    <button class="complexity-btn selected" data-value="Medium">
-                        <span class="complexity-dot" style="background: #ff9800"></span>
-                        Medium
-                    </button>
-                    <button class="complexity-btn" data-value="High">
-                        <span class="complexity-dot" style="background: #f44336"></span>
-                        High
-                    </button>
-                    <button class="complexity-btn" data-value="Urgent">
-                        <span class="complexity-dot" style="background: #d50000"></span>
-                        Urgent
-                    </button>
-                </div>
-            </div>
+        <div class="hero__panel glass">
+          <p>Сегодняшний настрой</p>
+          <h2>Маленькие шаги дают большой результат</h2>
+          <div class="pulse-line"></div>
+          <ul class="hero__highlights">
+            <li>Учет задач по сложности</li>
+            <li>Разделение на активные и выполненные</li>
+            <li>Таймер с круговой анимацией</li>
+          </ul>
         </div>
+      </header>
 
-        <div class="modal-footer">
-            <button class="btn-secondary" id="cancelModal">Cancel</button>
-            <button class="btn-primary" id="confirmAddTask">
-                <i class="ph ph-plus"></i> Add Task
-            </button>
-        </div>
-    </div>
-</div>
-<body>
-    <div class="app-container">
-        <aside class="sidebar glass-panel">
-            <div class="logo">
-                <i class="ph-fill ph-infinity"></i>
-                <span>FocusApp</span>
-            </div>
-            <nav>
-                <a href="#" class="active"><i class="ph ph-kanban"></i> Tasks</a>
-                <a href="#"><i class="ph ph-timer"></i> Pomodoro</a>
-                <a href="#"><i class="ph ph-calendar"></i> Calendar</a>
-                <a href="#"><i class="ph ph-chart-bar"></i> Statistics</a>
-            </nav>
-        </aside>
+      <main class="dashboard glass">
+        <nav class="tabs" aria-label="Основные вкладки">
+          <button class="tab-button is-active" data-tab="tasks">Задачи</button>
+          <button class="tab-button" data-tab="timer">Таймер</button>
+          <button class="tab-button" data-tab="insights">Прогресс</button>
+        </nav>
 
-        <main class="content">
-            <header>
-                <h1>Task Management</h1>
-                <button class="btn-primary" id="addTaskBtn">
-                    <i class="ph ph-plus"></i> New Task
-                </button>
-            </header>
+        <section class="tab-panel is-active" id="tasks">
+          <div class="panel-grid">
+            <section class="card form-card">
+              <div class="section-heading">
+                <p class="section-label">Новая задача</p>
+                <h2>Добавь следующий шаг</h2>
+              </div>
 
-            <section class="kanban-board">
-                <div class="column glass-panel" data-status="todo">
-                    <h2>To Do</h2>
-                    <div class="task-list" id="todo-list"></div>
+              <form id="taskForm" class="task-form">
+                <label>
+                  Название задачи
+                  <input
+                    id="taskTitle"
+                    name="title"
+                    type="text"
+                    maxlength="80"
+                    placeholder="Например: подготовить презентацию"
+                    required
+                  />
+                </label>
+
+                <label>
+                  Короткое описание
+                  <textarea
+                    id="taskDescription"
+                    name="description"
+                    rows="4"
+                    maxlength="180"
+                    placeholder="Что именно нужно сделать?"
+                  ></textarea>
+                </label>
+
+                <div class="form-row">
+                  <label>
+                    Сложность
+                    <select id="taskDifficulty" name="difficulty">
+                      <option value="Легкая">Легкая</option>
+                      <option value="Средняя" selected>Средняя</option>
+                      <option value="Сложная">Сложная</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    Дедлайн
+                    <input id="taskDeadline" name="deadline" type="date" />
+                  </label>
                 </div>
-                <div class="column glass-panel" data-status="progress">
-                    <h2>In Progress</h2>
-                    <div class="task-list" id="progress-list"></div>
-                </div>
-                <div class="column glass-panel" data-status="done">
-                    <h2>Done</h2>
-                    <div class="task-list" id="done-list"></div>
-                </div>
+
+                <button class="primary-button" type="submit">Создать задачу</button>
+              </form>
             </section>
 
-            <section class="pomodoro-widget glass-panel">
-                <h2>Focus Timer</h2>
-                <div class="timer-display" id="timer">25:00</div>
-                <div class="timer-controls">
-                    <button class="btn-secondary" id="startTimer">Start</button>
-                    <button class="btn-secondary" id="pauseTimer">Pause</button>
-                    <button class="btn-secondary" id="resetTimer">Reset</button>
+            <section class="card board-card">
+              <div class="section-heading section-heading--inline">
+                <div>
+                  <p class="section-label">Твоя доска</p>
+                  <h2>Список задач</h2>
                 </div>
+                <div class="filter-pills" role="tablist" aria-label="Фильтр задач">
+                  <button class="pill is-active" data-filter="all">Все</button>
+                  <button class="pill" data-filter="todo">В процессе</button>
+                  <button class="pill" data-filter="done">Готово</button>
+                </div>
+              </div>
+
+              <div id="taskColumns" class="task-columns">
+                <section class="task-column">
+                  <div class="task-column__header">
+                    <h3>В процессе</h3>
+                    <span id="todoCount">0</span>
+                  </div>
+                  <div id="todoList" class="task-list"></div>
+                </section>
+
+                <section class="task-column">
+                  <div class="task-column__header">
+                    <h3>Сделано</h3>
+                    <span id="doneCount">0</span>
+                  </div>
+                  <div id="doneList" class="task-list"></div>
+                </section>
+              </div>
             </section>
-        </main>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="timer">
+          <div class="timer-layout">
+            <section class="card timer-card">
+              <div class="section-heading">
+                <p class="section-label">Фокус-сессия</p>
+                <h2>Круговой таймер</h2>
+              </div>
+
+              <div class="timer-ring-wrap">
+                <svg class="timer-ring" viewBox="0 0 220 220" aria-hidden="true">
+                  <circle class="timer-ring__bg" cx="110" cy="110" r="90"></circle>
+                  <circle
+                    class="timer-ring__progress"
+                    id="timerProgress"
+                    cx="110"
+                    cy="110"
+                    r="90"
+                  ></circle>
+                </svg>
+                <div class="timer-ring__content">
+                  <span id="timerLabel">Готов</span>
+                  <strong id="timerDisplay">25:00</strong>
+                  <p>Спокойный ритм работы</p>
+                </div>
+              </div>
+
+              <div class="timer-controls">
+                <label>
+                  Минуты
+                  <input id="timerMinutes" type="number" min="1" max="180" value="25" />
+                </label>
+                <div class="button-row">
+                  <button id="startTimer" class="primary-button" type="button">Старт</button>
+                  <button id="pauseTimer" class="secondary-button" type="button">Пауза</button>
+                  <button id="resetTimer" class="ghost-button" type="button">Сброс</button>
+                </div>
+              </div>
+            </section>
+
+            <section class="card presets-card">
+              <div class="section-heading">
+                <p class="section-label">Быстрый запуск</p>
+                <h2>Популярные режимы</h2>
+              </div>
+              <div class="preset-grid">
+                <button class="preset-button" data-minutes="15">15 мин</button>
+                <button class="preset-button" data-minutes="25">25 мин</button>
+                <button class="preset-button" data-minutes="45">45 мин</button>
+                <button class="preset-button" data-minutes="60">60 мин</button>
+              </div>
+              <div class="tip-box">
+                <p>Совет</p>
+                <h3>После каждой длинной сессии делай небольшой перерыв.</h3>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="insights">
+          <div class="insights-grid">
+            <section class="card insight-card">
+              <p class="section-label">Успеваемость</p>
+              <h2 id="completionRate">0%</h2>
+              <p>Процент завершенных задач</p>
+            </section>
+
+            <section class="card insight-card">
+              <p class="section-label">Сложность</p>
+              <h2 id="hardTasksCount">0</h2>
+              <p>Сложных задач сейчас в списке</p>
+            </section>
+
+            <section class="card insight-card insight-card--wide">
+              <p class="section-label">Мини-идеи</p>
+              <h2>Что еще есть на сайте</h2>
+              <ul class="feature-list">
+                <li>Задачи сохраняются в браузере автоматически</li>
+                <li>Можно фильтровать список и быстро менять статус</li>
+                <li>Есть блок прогресса для красивой демонстрации проекта</li>
+              </ul>
+            </section>
+          </div>
+        </section>
+      </main>
     </div>
-    <script src="app.js"></script>
-</body>
+
+    <template id="taskTemplate">
+      <article class="task-item">
+        <div class="task-item__top">
+          <span class="difficulty-badge"></span>
+          <button class="icon-button delete-button" type="button" aria-label="Удалить задачу">
+            ×
+          </button>
+        </div>
+        <h3 class="task-title"></h3>
+        <p class="task-description"></p>
+        <div class="task-meta">
+          <span class="deadline-text"></span>
+          <button class="toggle-status" type="button"></button>
+        </div>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
 </html>
