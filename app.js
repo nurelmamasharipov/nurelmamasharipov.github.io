@@ -18,10 +18,9 @@ const Kanban = {
     init() {
         this.render();
         this.setupDragAndDrop();
-        
+
         document.getElementById('addTaskBtn').addEventListener('click', () => {
-            const title = prompt('Enter task title:');
-            if (title) this.addTask(title);
+            Modal.open();
         });
     },
 
@@ -51,13 +50,13 @@ const Kanban = {
         });
     },
 
-    addTask(title) {
+    addTask(title, priority = 'Medium') {
         const tasks = Storage.getTasks();
         tasks.push({
             id: Date.now().toString(),
             title,
             status: 'todo',
-            priority: 'Medium' // Default
+            priority
         });
         Storage.saveTasks(tasks);
         this.render();
@@ -91,8 +90,7 @@ const Kanban = {
             if (column && draggedItem) {
                 const list = column.querySelector('.task-list');
                 list.appendChild(draggedItem);
-                
-                // Update LocalStorage
+
                 const taskId = draggedItem.dataset.id;
                 const newStatus = column.dataset.status;
                 const tasks = Storage.getTasks();
@@ -110,7 +108,7 @@ const Kanban = {
 const Pomodoro = {
     timeLeft: 25 * 60,
     timerId: null,
-    
+
     init() {
         this.display = document.getElementById('timer');
         document.getElementById('startTimer').addEventListener('click', () => this.start());
@@ -139,7 +137,7 @@ const Pomodoro = {
 
     reset() {
         this.pause();
-        this.timeLeft = 25 * 60; // 25 minutes
+        this.timeLeft = 25 * 60;
         this.updateDisplay();
     },
 
@@ -150,7 +148,6 @@ const Pomodoro = {
     },
 
     playSound() {
-        // Simple beep using Web Audio API so no external files are needed
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
         osc.type = 'sine';
@@ -161,17 +158,66 @@ const Pomodoro = {
     }
 };
 
-// --- INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
-    Kanban.init();
-    Pomodoro.init();
-});
+// --- MODAL LOGIC ---
+const Modal = {
+    selectedComplexity: 'Medium',
+
+    init() {
+        const overlay = document.getElementById('taskModal');
+        const input = document.getElementById('taskTitleInput');
+
+        document.getElementById('closeModal').addEventListener('click', () => this.close());
+        document.getElementById('cancelModal').addEventListener('click', () => this.close());
+        document.getElementById('confirmAddTask').addEventListener('click', () => this.submit());
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) this.close();
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') this.submit();
+            if (e.key === 'Escape') this.close();
+        });
+
+        document.querySelectorAll('.complexity-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.complexity-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                this.selectedComplexity = btn.dataset.value;
+            });
+        });
+    },
+
+    open() {
+        document.getElementById('taskTitleInput').value = '';
+        this.selectedComplexity = 'Medium';
+        document.querySelectorAll('.complexity-btn').forEach(b => {
+            b.classList.toggle('selected', b.dataset.value === 'Medium');
+        });
+        document.getElementById('taskModal').classList.add('open');
+        setTimeout(() => document.getElementById('taskTitleInput').focus(), 50);
+    },
+
+    close() {
+        document.getElementById('taskModal').classList.remove('open');
+    },
+
+    submit() {
+        const title = document.getElementById('taskTitleInput').value.trim();
+        if (!title) {
+            document.getElementById('taskTitleInput').focus();
+            return;
+        }
+        Kanban.addTask(title, this.selectedComplexity);
+        this.close();
+    }
+};
 
 // --- NAVIGATION LOGIC ---
 const Navigation = {
     init() {
         this.links = document.querySelectorAll('.sidebar nav a');
-        this.sections = document.querySelectorAll('main > section'); // Все секции контента
+        this.sections = document.querySelectorAll('main > section');
 
         this.links.forEach(link => {
             link.addEventListener('click', (e) => {
@@ -183,27 +229,25 @@ const Navigation = {
     },
 
     switchTab(activeLink, targetId) {
-        // Убираем активный класс у всех ссылок
         this.links.forEach(link => link.classList.remove('active'));
         activeLink.classList.add('active');
 
-        // Скрываем все секции и показываем нужную
         this.sections.forEach(section => {
             section.style.display = 'none';
         });
-        
+
         const activeSection = document.getElementById(targetId);
         if (activeSection) {
-            // Добавляем плавное появление
             activeSection.style.display = 'block';
             activeSection.style.animation = 'fadeIn 0.3s ease-in-out';
         }
     }
 };
 
-// Добавь это в инициализацию в самом низу файла:
+// --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Kanban.init();
-    // Pomodoro.init();
-    Navigation.init(); 
+    Kanban.init();
+    Pomodoro.init();
+    Modal.init();
+    Navigation.init();
 });
