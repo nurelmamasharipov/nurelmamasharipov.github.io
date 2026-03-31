@@ -1,277 +1,349 @@
-// --- STATE MANAGEMENT (localStorage) ---
-const Storage = {
-    getTasks: () => JSON.parse(localStorage.getItem('tasks')) || [],
-    saveTasks: (tasks) => localStorage.setItem('tasks', JSON.stringify(tasks)),
+const STORAGE_KEY = "focusflow_tasks";
+const DEFAULT_FOCUS_MINUTES = 25;
+const CIRCLE_LENGTH = 2 * Math.PI * 90;
+
+const state = {
+  tasks: loadTasks(),
+  filter: "all",
+  timer: {
+    totalSeconds: DEFAULT_FOCUS_MINUTES * 60,
+    remainingSeconds: DEFAULT_FOCUS_MINUTES * 60,
+    intervalId: null,
+    isRunning: false,
+  },
 };
 
-if (Storage.getTasks().length === 0) {
-    Storage.saveTasks([
-        { id: '1', title: 'Design Database Schema', status: 'todo', priority: 'High' },
-        { id: '2', title: 'Setup GitHub Pages', status: 'progress', priority: 'Urgent' },
-        { id: '3', title: 'Create Wireframes', status: 'done', priority: 'Medium' }
-    ]);
+const elements = {
+  tabs: document.querySelectorAll(".tab-button"),
+  panels: document.querySelectorAll(".tab-panel"),
+  taskForm: document.querySelector("#taskForm"),
+  titleInput: document.querySelector("#taskTitle"),
+  descriptionInput: document.querySelector("#taskDescription"),
+  difficultyInput: document.querySelector("#taskDifficulty"),
+  deadlineInput: document.querySelector("#taskDeadline"),
+  todoList: document.querySelector("#todoList"),
+  doneList: document.querySelector("#doneList"),
+  todoCount: document.querySelector("#todoCount"),
+  doneCount: document.querySelector("#doneCount"),
+  statTotal: document.querySelector("#statTotal"),
+  statDone: document.querySelector("#statDone"),
+  statFocus: document.querySelector("#statFocus"),
+  completionRate: document.querySelector("#completionRate"),
+  hardTasksCount: document.querySelector("#hardTasksCount"),
+  taskTemplate: document.querySelector("#taskTemplate"),
+  filterButtons: document.querySelectorAll(".pill"),
+  timerDisplay: document.querySelector("#timerDisplay"),
+  timerLabel: document.querySelector("#timerLabel"),
+  timerMinutes: document.querySelector("#timerMinutes"),
+  timerProgress: document.querySelector("#timerProgress"),
+  startTimer: document.querySelector("#startTimer"),
+  pauseTimer: document.querySelector("#pauseTimer"),
+  resetTimer: document.querySelector("#resetTimer"),
+  presetButtons: document.querySelectorAll(".preset-button"),
+};
+
+init();
+
+function init() {
+  setupTabs();
+  setupTasks();
+  setupFilters();
+  setupTimer();
+  renderTasks();
+  updateStats();
+  updateTimerUI();
 }
 
-// --- KANBAN LOGIC ---
-const Kanban = {
-    init() {
-        this.render();
-        this.setupDragAndDrop();
+function setupTabs() {
+  elements.tabs.forEach((button) => {
+    button.addEventListener("click", () => {
+      const tabId = button.dataset.tab;
 
-        document.getElementById('addTaskBtn').addEventListener('click', () => {
-            Modal.open();
-        });
+      elements.tabs.forEach((tab) => tab.classList.toggle("is-active", tab === button));
+      elements.panels.forEach((panel) =>
+        panel.classList.toggle("is-active", panel.id === tabId)
+      );
+    });
+  });
+}
 
-        // Delete вЂ” event delegation РЅР° РІСЃРµР№ РґРѕСЃРєРµ
-        document.querySelector('.kanban-board').addEventListener('click', (e) => {
-            const deleteBtn = e.target.closest('.task-delete');
-            if (deleteBtn) {
-                e.stopPropagation();
-                this.deleteTask(deleteBtn.dataset.id);
-            }
-        });
-    },
+function setupTasks() {
+  elements.taskForm.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-    getPriorityColor(priority) {
-        const colors = { 'Low': '#4caf50', 'Medium': '#ff9800', 'High': '#f44336', 'Urgent': '#d50000' };
-        return colors[priority] || colors['Low'];
-    },
+    const title = elements.titleInput.value.trim();
+    const description = elements.descriptionInput.value.trim();
+    const difficulty = elements.difficultyInput.value;
+    const deadline = elements.deadlineInput.value;
 
-    render() {
-        const tasks = Storage.getTasks();
-        document.querySelectorAll('.task-list').forEach(list => list.innerHTML = '');
-
-        tasks.forEach(task => {
-            const el = document.createElement('div');
-            el.className = 'task-card';
-            el.draggable = true;
-            el.dataset.id = task.id;
-            el.innerHTML = `
-                <div class="task-card-header">
-                    <div class="task-title">${task.title}</div>
-                    <button class="task-delete" data-id="${task.id}" title="Delete task">
-                        <i class="ph ph-x"></i>
-                    </button>
-                </div>
-                <div class="task-meta">
-                    <span class="priority-indicator" style="background: ${this.getPriorityColor(task.priority)}20; color: ${this.getPriorityColor(task.priority)}">
-                        ${task.priority}
-                    </span>
-                </div>
-            `;
-            document.getElementById(`${task.status}-list`).appendChild(el);
-        });
-    },
-
-    addTask(title, priority = 'Medium') {
-        const tasks = Storage.getTasks();
-        tasks.push({
-            id: Date.now().toString(),
-            title,
-            status: 'todo',
-            priority
-        });
-        Storage.saveTasks(tasks);
-        this.render();
-    },
-
-    deleteTask(id) {
-        let tasks = Storage.getTasks();
-        tasks = tasks.filter(t => t.id !== id);
-        Storage.saveTasks(tasks);
-        this.render();
-    },
-
-    setupDragAndDrop() {
-        const board = document.querySelector('.kanban-board');
-        let draggedItem = null;
-
-        board.addEventListener('dragstart', (e) => {
-            if (e.target.classList.contains('task-card')) {
-                draggedItem = e.target;
-                setTimeout(() => e.target.style.opacity = '0.5', 0);
-            }
-        });
-
-        board.addEventListener('dragend', (e) => {
-            if (e.target.classList.contains('task-card')) {
-                setTimeout(() => {
-                    e.target.style.opacity = '1';
-                    draggedItem = null;
-                }, 0);
-            }
-        });
-
-        board.addEventListener('dragover', (e) => e.preventDefault());
-
-        board.addEventListener('drop', (e) => {
-            e.preventDefault();
-            const column = e.target.closest('.column');
-            if (column && draggedItem) {
-                const list = column.querySelector('.task-list');
-                list.appendChild(draggedItem);
-
-                const taskId = draggedItem.dataset.id;
-                const newStatus = column.dataset.status;
-                const tasks = Storage.getTasks();
-                const task = tasks.find(t => t.id === taskId);
-                if (task) {
-                    task.status = newStatus;
-                    Storage.saveTasks(tasks);
-                }
-            }
-        });
+    if (!title) {
+      return;
     }
-};
 
-// --- POMODORO LOGIC ---
-const Pomodoro = {
-    timeLeft: 25 * 60,
-    timerId: null,
+    state.tasks.unshift({
+      id: crypto.randomUUID(),
+      title,
+      description,
+      difficulty,
+      deadline,
+      done: false,
+      createdAt: Date.now(),
+    });
 
-    init() {
-        this.display = document.getElementById('timer');
-        document.getElementById('startTimer').addEventListener('click', () => this.start());
-        document.getElementById('pauseTimer').addEventListener('click', () => this.pause());
-        document.getElementById('resetTimer').addEventListener('click', () => this.reset());
-        this.updateDisplay();
-    },
+    persistTasks();
+    elements.taskForm.reset();
+    elements.difficultyInput.value = "Средняя";
+    renderTasks();
+    updateStats();
+  });
+}
 
-    start() {
-        if (this.timerId) return;
-        this.timerId = setInterval(() => {
-            this.timeLeft--;
-            this.updateDisplay();
-            if (this.timeLeft <= 0) {
-                this.pause();
-                this.playSound();
-                alert('Focus session complete!');
-            }
-        }, 1000);
-    },
+function setupFilters() {
+  elements.filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      state.filter = button.dataset.filter;
+      elements.filterButtons.forEach((pill) =>
+        pill.classList.toggle("is-active", pill === button)
+      );
+      renderTasks();
+    });
+  });
+}
 
-    pause() {
-        clearInterval(this.timerId);
-        this.timerId = null;
-    },
+function renderTasks() {
+  elements.todoList.innerHTML = "";
+  elements.doneList.innerHTML = "";
 
-    reset() {
-        this.pause();
-        this.timeLeft = 25 * 60;
-        this.updateDisplay();
-    },
-
-    updateDisplay() {
-        const minutes = Math.floor(this.timeLeft / 60).toString().padStart(2, '0');
-        const seconds = (this.timeLeft % 60).toString().padStart(2, '0');
-        this.display.textContent = `${minutes}:${seconds}`;
-    },
-
-    playSound() {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(440, ctx.currentTime);
-        osc.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.5);
+  const filteredTasks = state.tasks.filter((task) => {
+    if (state.filter === "todo") {
+      return !task.done;
     }
-};
-
-// --- MODAL LOGIC ---
-const Modal = {
-    selectedComplexity: 'Medium',
-
-    init() {
-        const overlay = document.getElementById('taskModal');
-        const input = document.getElementById('taskTitleInput');
-
-        document.getElementById('closeModal').addEventListener('click', () => this.close());
-        document.getElementById('cancelModal').addEventListener('click', () => this.close());
-        document.getElementById('confirmAddTask').addEventListener('click', () => this.submit());
-
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) this.close();
-        });
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') this.submit();
-            if (e.key === 'Escape') this.close();
-        });
-
-        document.querySelectorAll('.complexity-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.complexity-btn').forEach(b => b.classList.remove('selected'));
-                btn.classList.add('selected');
-                this.selectedComplexity = btn.dataset.value;
-            });
-        });
-    },
-
-    open() {
-        document.getElementById('taskTitleInput').value = '';
-        this.selectedComplexity = 'Medium';
-        document.querySelectorAll('.complexity-btn').forEach(b => {
-            b.classList.toggle('selected', b.dataset.value === 'Medium');
-        });
-        document.getElementById('taskModal').classList.add('open');
-        setTimeout(() => document.getElementById('taskTitleInput').focus(), 50);
-    },
-
-    close() {
-        document.getElementById('taskModal').classList.remove('open');
-    },
-
-    submit() {
-        const title = document.getElementById('taskTitleInput').value.trim();
-        if (!title) {
-            document.getElementById('taskTitleInput').focus();
-            return;
-        }
-        Kanban.addTask(title, this.selectedComplexity);
-        this.close();
+    if (state.filter === "done") {
+      return task.done;
     }
-};
+    return true;
+  });
 
-// --- NAVIGATION LOGIC ---
-const Navigation = {
-    init() {
-        this.links    = document.querySelectorAll('.sidebar nav a');
-        this.sections = document.querySelectorAll('main > section');
+  filteredTasks.forEach((task) => {
+    const fragment = elements.taskTemplate.content.cloneNode(true);
+    const item = fragment.querySelector(".task-item");
+    const badge = fragment.querySelector(".difficulty-badge");
+    const title = fragment.querySelector(".task-title");
+    const description = fragment.querySelector(".task-description");
+    const deadline = fragment.querySelector(".deadline-text");
+    const toggle = fragment.querySelector(".toggle-status");
+    const remove = fragment.querySelector(".delete-button");
 
-        // РџСЂРё СЃС‚Р°СЂС‚Рµ РїРѕРєР°Р·С‹РІР°РµРј С‚РѕР»СЊРєРѕ РїРµСЂРІСѓСЋ СЃРµРєС†РёСЋ
-        this.sections.forEach((s, i) => {
-            s.style.display = i === 0 ? 'block' : 'none';
-        });
+    title.textContent = task.title;
+    description.textContent = task.description || "Без дополнительного описания.";
+    deadline.textContent = task.deadline
+      ? `Дедлайн: ${formatDate(task.deadline)}`
+      : "Без дедлайна";
 
-        this.links.forEach((link, index) => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.switchTab(index);
-            });
-        });
-    },
+    badge.textContent = task.difficulty;
+    badge.classList.add(getDifficultyClass(task.difficulty));
 
-    switchTab(activeIndex) {
-        this.links.forEach((link, i) => {
-            link.classList.toggle('active', i === activeIndex);
-        });
+    toggle.textContent = task.done ? "Вернуть" : "Готово";
+    toggle.addEventListener("click", () => toggleTask(task.id));
+    remove.addEventListener("click", () => deleteTask(task.id));
 
-        this.sections.forEach((section, i) => {
-            if (i === activeIndex) {
-                section.style.display = 'block';
-                section.style.animation = 'fadeIn 0.3s ease-in-out';
-            } else {
-                section.style.display = 'none';
-            }
-        });
+    item.dataset.id = task.id;
+
+    if (task.done) {
+      elements.doneList.appendChild(fragment);
+    } else {
+      elements.todoList.appendChild(fragment);
     }
-};
+  });
 
-// --- INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
-    Kanban.init();
-    Pomodoro.init();
-    Modal.init();
-    Navigation.init();
-});
+  const todoTasks = state.tasks.filter((task) => !task.done).length;
+  const doneTasks = state.tasks.filter((task) => task.done).length;
+  elements.todoCount.textContent = String(todoTasks);
+  elements.doneCount.textContent = String(doneTasks);
+}
+
+function toggleTask(taskId) {
+  state.tasks = state.tasks.map((task) =>
+    task.id === taskId ? { ...task, done: !task.done } : task
+  );
+
+  persistTasks();
+  renderTasks();
+  updateStats();
+}
+
+function deleteTask(taskId) {
+  state.tasks = state.tasks.filter((task) => task.id !== taskId);
+  persistTasks();
+  renderTasks();
+  updateStats();
+}
+
+function updateStats() {
+  const total = state.tasks.length;
+  const done = state.tasks.filter((task) => task.done).length;
+  const hard = state.tasks.filter(
+    (task) => !task.done && task.difficulty === "Сложная"
+  ).length;
+  const completion = total === 0 ? 0 : Math.round((done / total) * 100);
+
+  elements.statTotal.textContent = String(total);
+  elements.statDone.textContent = String(done);
+  elements.completionRate.textContent = `${completion}%`;
+  elements.hardTasksCount.textContent = String(hard);
+}
+
+function setupTimer() {
+  elements.timerProgress.style.strokeDasharray = `${CIRCLE_LENGTH}`;
+
+  elements.startTimer.addEventListener("click", startTimer);
+  elements.pauseTimer.addEventListener("click", pauseTimer);
+  elements.resetTimer.addEventListener("click", resetTimer);
+
+  elements.timerMinutes.addEventListener("change", () => {
+    const minutes = clampMinutes(Number(elements.timerMinutes.value));
+    applyMinutes(minutes);
+  });
+
+  elements.presetButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const minutes = clampMinutes(Number(button.dataset.minutes));
+      elements.timerMinutes.value = String(minutes);
+      applyMinutes(minutes);
+    });
+  });
+}
+
+function startTimer() {
+  if (state.timer.isRunning) {
+    return;
+  }
+
+  state.timer.isRunning = true;
+  elements.timerLabel.textContent = "Идет фокус";
+
+  state.timer.intervalId = window.setInterval(() => {
+    if (state.timer.remainingSeconds > 0) {
+      state.timer.remainingSeconds -= 1;
+      updateTimerUI();
+      return;
+    }
+
+    pauseTimer();
+    elements.timerLabel.textContent = "Завершено";
+    elements.statFocus.textContent = String(
+      Math.round(state.timer.totalSeconds / 60)
+    );
+  }, 1000);
+}
+
+function pauseTimer() {
+  if (state.timer.intervalId) {
+    window.clearInterval(state.timer.intervalId);
+    state.timer.intervalId = null;
+  }
+
+  state.timer.isRunning = false;
+
+  if (state.timer.remainingSeconds > 0) {
+    elements.timerLabel.textContent = "Пауза";
+  }
+}
+
+function resetTimer() {
+  pauseTimer();
+  const minutes = clampMinutes(Number(elements.timerMinutes.value));
+  applyMinutes(minutes);
+  elements.timerLabel.textContent = "Готов";
+}
+
+function applyMinutes(minutes) {
+  pauseTimer();
+  state.timer.totalSeconds = minutes * 60;
+  state.timer.remainingSeconds = minutes * 60;
+  updateTimerUI();
+  elements.statFocus.textContent = String(minutes);
+}
+
+function updateTimerUI() {
+  elements.timerDisplay.textContent = formatTime(state.timer.remainingSeconds);
+
+  const progress =
+    state.timer.totalSeconds === 0
+      ? 0
+      : state.timer.remainingSeconds / state.timer.totalSeconds;
+  const dashOffset = CIRCLE_LENGTH * (1 - progress);
+  elements.timerProgress.style.strokeDashoffset = `${dashOffset}`;
+}
+
+function loadTasks() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : seedTasks();
+  } catch (error) {
+    return seedTasks();
+  }
+}
+
+function persistTasks() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tasks));
+}
+
+function seedTasks() {
+  return [
+    {
+      id: crypto.randomUUID(),
+      title: "Собрать структуру сайта",
+      description: "Продумать блоки, вкладки и общий сценарий проекта.",
+      difficulty: "Средняя",
+      deadline: "",
+      done: false,
+      createdAt: Date.now(),
+    },
+    {
+      id: crypto.randomUUID(),
+      title: "Подготовить описание для колледжа",
+      description: "Коротко объяснить идею проекта и зачем он полезен.",
+      difficulty: "Легкая",
+      deadline: "",
+      done: true,
+      createdAt: Date.now() - 5000,
+    },
+  ];
+}
+
+function clampMinutes(value) {
+  if (!Number.isFinite(value)) {
+    return DEFAULT_FOCUS_MINUTES;
+  }
+
+  return Math.min(180, Math.max(1, Math.round(value)));
+}
+
+function formatTime(totalSeconds) {
+  const minutes = Math.floor(totalSeconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = Math.floor(totalSeconds % 60)
+    .toString()
+    .padStart(2, "0");
+  return `${minutes}:${seconds}`;
+}
+
+function formatDate(dateValue) {
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(dateValue));
+}
+
+function getDifficultyClass(difficulty) {
+  if (difficulty === "Легкая") {
+    return "difficulty-easy";
+  }
+  if (difficulty === "Сложная") {
+    return "difficulty-hard";
+  }
+  return "difficulty-medium";
+}
