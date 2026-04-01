@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FocusFlow | Планер и таймер</title>
+    <meta
+      name="description"
+      content="Современный планер с задачами, прогрессом и круговым таймером для фокусной работы."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,7 +19,7 @@
   <body>
     <div class="page-shell">
       <header class="hero">
-        <div class="hero__text">
+        <div class="hero__text glass">
           <p class="eyebrow">Проект для поступления</p>
           <h1>FocusFlow</h1>
           <p class="hero__lead">
@@ -37,7 +41,8 @@
             </article>
           </div>
         </div>
-        <div class="hero__panel glass">
+
+        <aside class="hero__panel glass">
           <p>Сегодняшний настрой</p>
           <h2>Маленькие шаги дают большой результат</h2>
           <div class="pulse-line"></div>
@@ -46,13 +51,14 @@
             <li>Разделение на активные и выполненные</li>
             <li>Таймер с круговой анимацией</li>
           </ul>
-        </div>
+        </aside>
       </header>
 
       <main class="dashboard glass">
         <nav class="tabs" aria-label="Основные вкладки">
           <button class="tab-button is-active" data-tab="tasks">Задачи</button>
           <button class="tab-button" data-tab="timer">Таймер</button>
+          <button class="tab-button" data-tab="calendar">Календарь</button>
           <button class="tab-button" data-tab="insights">Прогресс</button>
         </nav>
 
@@ -173,6 +179,7 @@
                   Минуты
                   <input id="timerMinutes" type="number" min="1" max="180" value="25" />
                 </label>
+
                 <div class="button-row">
                   <button id="startTimer" class="primary-button" type="button">Старт</button>
                   <button id="pauseTimer" class="secondary-button" type="button">Пауза</button>
@@ -192,9 +199,84 @@
                 <button class="preset-button" data-minutes="45">45 мин</button>
                 <button class="preset-button" data-minutes="60">60 мин</button>
               </div>
+
               <div class="tip-box">
                 <p>Совет</p>
                 <h3>После каждой длинной сессии делай небольшой перерыв.</h3>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="calendar">
+          <div class="calendar-layout">
+            <section class="card calendar-card">
+              <div class="section-heading section-heading--inline">
+                <div>
+                  <p class="section-label">Планирование</p>
+                  <h2>Календарь месяца</h2>
+                </div>
+                <div class="calendar-nav">
+                  <button id="prevMonth" class="ghost-button" type="button">Назад</button>
+                  <div id="calendarMonthLabel" class="calendar-month-label"></div>
+                  <button id="nextMonth" class="ghost-button" type="button">Далее</button>
+                </div>
+              </div>
+
+              <div class="calendar-weekdays" aria-hidden="true">
+                <span>Пн</span>
+                <span>Вт</span>
+                <span>Ср</span>
+                <span>Чт</span>
+                <span>Пт</span>
+                <span>Сб</span>
+                <span>Вс</span>
+              </div>
+              <div id="calendarGrid" class="calendar-grid"></div>
+            </section>
+
+            <section class="card calendar-sidebar">
+              <div class="section-heading">
+                <p class="section-label">Новое событие</p>
+                <h2>Добавь важную дату</h2>
+              </div>
+
+              <form id="eventForm" class="task-form">
+                <label>
+                  Дата
+                  <input id="eventDate" type="date" required />
+                </label>
+                <label>
+                  Название
+                  <input
+                    id="eventTitle"
+                    type="text"
+                    maxlength="80"
+                    placeholder="Например: защита проекта"
+                    required
+                  />
+                </label>
+                <label>
+                  Заметка
+                  <textarea
+                    id="eventNote"
+                    rows="3"
+                    maxlength="180"
+                    placeholder="Что важно не забыть?"
+                  ></textarea>
+                </label>
+                <button class="primary-button" type="submit">Сохранить событие</button>
+              </form>
+
+              <div class="calendar-selected">
+                <p class="section-label">Выбранный день</p>
+                <h3 id="selectedDateLabel">Выбери дату</h3>
+                <div id="selectedDayList" class="event-list"></div>
+              </div>
+
+              <div class="calendar-selected">
+                <p class="section-label">Ближайшие даты</p>
+                <div id="upcomingEvents" class="event-list"></div>
               </div>
             </section>
           </div>
@@ -212,6 +294,12 @@
               <p class="section-label">Сложность</p>
               <h2 id="hardTasksCount">0</h2>
               <p>Сложных задач сейчас в списке</p>
+            </section>
+
+            <section class="card insight-card">
+              <p class="section-label">События</p>
+              <h2 id="eventsCount">0</h2>
+              <p>Сохраненных дат в календаре</p>
             </section>
 
             <section class="card insight-card insight-card--wide">
