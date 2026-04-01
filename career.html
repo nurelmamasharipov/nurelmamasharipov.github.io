@@ -3,122 +3,61 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Results | Career Path Finder for Students</title>
+    <title>Career Details | Career Path Finder for Students</title>
     <meta
       name="description"
-      content="View your saved career results, compatibility scores, and personalized student roadmap guidance."
+      content="Browse career descriptions, required skills, salaries, and learning roadmaps."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Sora:wght@600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <script src="data.js" defer></script>
     <script src="script.js" defer></script>
   </head>
-  <body data-page="results">
-    <div class="site-bg">
-      <div class="orb orb--one"></div>
-      <div class="orb orb--two"></div>
-      <div class="grid-glow"></div>
+  <body data-page="career">
+    <div class="page-backdrop">
+      <div class="glow glow--left"></div>
+      <div class="glow glow--right"></div>
+      <div class="noise-grid"></div>
     </div>
 
-    <header class="topbar container">
+    <header class="site-header container">
       <a class="brand" href="index.html">
-        <span class="brand__mark">CP</span>
-        <span>
+        <span class="brand__logo">CP</span>
+        <span class="brand__text">
           <strong>Career Path Finder</strong>
-          <small>for Students</small>
+          <small>for students</small>
         </span>
       </a>
 
-      <nav class="topbar__nav">
-        <a href="index.html">Home</a>
-        <a href="test.html">Career Test</a>
-        <a href="results.html">Results</a>
-        <a href="career.html">Careers</a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="index.html" data-nav="home">Home</a>
+        <a href="test.html" data-nav="test">Test</a>
+        <a href="results.html" data-nav="results">Results</a>
+        <a href="career.html" data-nav="career">Careers</a>
       </nav>
 
-      <button
-        class="theme-toggle"
-        id="themeToggle"
-        type="button"
-        aria-label="Toggle dark and light mode"
-      >
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">
         <span class="theme-toggle__thumb"></span>
       </button>
     </header>
 
-    <main class="container section">
-      <section class="empty-state card" id="resultsEmpty" hidden>
-        <p class="eyebrow">No saved results yet</p>
-        <h1>Your career profile will appear here.</h1>
-        <p>
-          Take the assessment first, then come back to explore your compatibility
-          scores, trait chart, and detailed career matches.
-        </p>
-        <div class="hero__actions">
-          <a class="button button--primary" href="test.html">Take the Career Test</a>
-          <a class="button button--ghost" href="career.html">Browse Careers</a>
-        </div>
+    <main class="container page-section">
+      <section class="career-layout">
+        <aside class="surface career-menu">
+          <div class="section-head section-head--tight">
+            <p class="eyebrow">Career list</p>
+            <h2>Browse careers</h2>
+          </div>
+          <div class="career-menu__list" id="careerList"></div>
+        </aside>
+
+        <section id="careerDetail"></section>
       </section>
-
-      <div id="resultsContent">
-        <section class="recommendation-banner card reveal" id="recommendationBanner"></section>
-
-        <section class="section">
-          <div class="summary-grid" id="summaryGrid"></div>
-        </section>
-
-        <section class="layout-results">
-          <div class="sidebar-stack">
-            <article class="chart-card reveal">
-              <div class="result-head">
-                <div>
-                  <p class="eyebrow">Trait chart</p>
-                  <h2>Your hidden strengths</h2>
-                </div>
-                <span class="tag">Chart.js radar</span>
-              </div>
-              <p class="progress-copy">
-                This visualization shows how your answers spread across the five
-                scoring categories.
-              </p>
-              <div class="chart-wrap">
-                <canvas id="resultsChart"></canvas>
-              </div>
-            </article>
-
-            <article class="panel-card reveal reveal-delay-1">
-              <p class="eyebrow">Motivation boost</p>
-              <h3 id="motivationalMessage"></h3>
-              <div class="results-actions">
-                <a class="button button--secondary" id="exploreTopCareer" href="career.html">
-                  Explore Top Career
-                </a>
-                <button class="button button--ghost" type="button" data-action="restart">
-                  Restart Test
-                </button>
-              </div>
-            </article>
-          </div>
-
-          <div class="sidebar-stack">
-            <article class="panel-card reveal">
-              <p class="eyebrow">Top 3 recommendations</p>
-              <div class="result-grid" id="topMatches"></div>
-            </article>
-
-            <article class="panel-card reveal reveal-delay-2">
-              <p class="eyebrow">Dominant traits</p>
-              <div class="metrics-grid" id="dominantTraits"></div>
-            </article>
-          </div>
-        </section>
-      </div>
     </main>
   </body>
 </html>
