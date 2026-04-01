@@ -1,338 +1,173 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FocusFlow | Планер и таймер</title>
+    <title>Career Path Finder for Students</title>
     <meta
       name="description"
-      content="Современный планер с задачами, прогрессом и круговым таймером для фокусной работы."
+      content="Discover the best career path for your personality, interests, and skills with an interactive student-friendly career assessment."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
+    <script src="data.js" defer></script>
+    <script src="script.js" defer></script>
   </head>
-  <body>
-    <div class="page-shell">
-      <header class="hero">
-        <div class="hero__text glass">
-          <p class="eyebrow">Проект для поступления</p>
-          <h1>FocusFlow</h1>
-          <p class="hero__lead">
-            Спокойный и современный планер с задачами, прогрессом и круговым
-            таймером для фокусной работы.
-          </p>
-          <div class="hero__stats">
-            <article class="stat-card">
-              <span id="statTotal">0</span>
-              <p>Всего задач</p>
-            </article>
-            <article class="stat-card">
-              <span id="statDone">0</span>
-              <p>Завершено</p>
-            </article>
-            <article class="stat-card">
-              <span id="statFocus">25</span>
-              <p>Минут в фокусе</p>
-            </article>
-          </div>
-        </div>
-
-        <aside class="hero__panel glass">
-          <p>Сегодняшний настрой</p>
-          <h2>Маленькие шаги дают большой результат</h2>
-          <div class="pulse-line"></div>
-          <ul class="hero__highlights">
-            <li>Учет задач по сложности</li>
-            <li>Разделение на активные и выполненные</li>
-            <li>Таймер с круговой анимацией</li>
-          </ul>
-        </aside>
-      </header>
-
-      <main class="dashboard glass">
-        <nav class="tabs" aria-label="Основные вкладки">
-          <button class="tab-button is-active" data-tab="tasks">Задачи</button>
-          <button class="tab-button" data-tab="timer">Таймер</button>
-          <button class="tab-button" data-tab="calendar">Календарь</button>
-          <button class="tab-button" data-tab="insights">Прогресс</button>
-        </nav>
-
-        <section class="tab-panel is-active" id="tasks">
-          <div class="panel-grid">
-            <section class="card form-card">
-              <div class="section-heading">
-                <p class="section-label">Новая задача</p>
-                <h2>Добавь следующий шаг</h2>
-              </div>
-
-              <form id="taskForm" class="task-form">
-                <label>
-                  Название задачи
-                  <input
-                    id="taskTitle"
-                    name="title"
-                    type="text"
-                    maxlength="80"
-                    placeholder="Например: подготовить презентацию"
-                    required
-                  />
-                </label>
-
-                <label>
-                  Короткое описание
-                  <textarea
-                    id="taskDescription"
-                    name="description"
-                    rows="4"
-                    maxlength="180"
-                    placeholder="Что именно нужно сделать?"
-                  ></textarea>
-                </label>
-
-                <div class="form-row">
-                  <label>
-                    Сложность
-                    <select id="taskDifficulty" name="difficulty">
-                      <option value="Легкая">Легкая</option>
-                      <option value="Средняя" selected>Средняя</option>
-                      <option value="Сложная">Сложная</option>
-                    </select>
-                  </label>
-
-                  <label>
-                    Дедлайн
-                    <input id="taskDeadline" name="deadline" type="date" />
-                  </label>
-                </div>
-
-                <button class="primary-button" type="submit">Создать задачу</button>
-              </form>
-            </section>
-
-            <section class="card board-card">
-              <div class="section-heading section-heading--inline">
-                <div>
-                  <p class="section-label">Твоя доска</p>
-                  <h2>Список задач</h2>
-                </div>
-                <div class="filter-pills" role="tablist" aria-label="Фильтр задач">
-                  <button class="pill is-active" data-filter="all">Все</button>
-                  <button class="pill" data-filter="todo">В процессе</button>
-                  <button class="pill" data-filter="done">Готово</button>
-                </div>
-              </div>
-
-              <div id="taskColumns" class="task-columns">
-                <section class="task-column">
-                  <div class="task-column__header">
-                    <h3>В процессе</h3>
-                    <span id="todoCount">0</span>
-                  </div>
-                  <div id="todoList" class="task-list"></div>
-                </section>
-
-                <section class="task-column">
-                  <div class="task-column__header">
-                    <h3>Сделано</h3>
-                    <span id="doneCount">0</span>
-                  </div>
-                  <div id="doneList" class="task-list"></div>
-                </section>
-              </div>
-            </section>
-          </div>
-        </section>
-
-        <section class="tab-panel" id="timer">
-          <div class="timer-layout">
-            <section class="card timer-card">
-              <div class="section-heading">
-                <p class="section-label">Фокус-сессия</p>
-                <h2>Круговой таймер</h2>
-              </div>
-
-              <div class="timer-ring-wrap">
-                <svg class="timer-ring" viewBox="0 0 220 220" aria-hidden="true">
-                  <circle class="timer-ring__bg" cx="110" cy="110" r="90"></circle>
-                  <circle
-                    class="timer-ring__progress"
-                    id="timerProgress"
-                    cx="110"
-                    cy="110"
-                    r="90"
-                  ></circle>
-                </svg>
-                <div class="timer-ring__content">
-                  <span id="timerLabel">Готов</span>
-                  <strong id="timerDisplay">25:00</strong>
-                  <p>Спокойный ритм работы</p>
-                </div>
-              </div>
-
-              <div class="timer-controls">
-                <label>
-                  Минуты
-                  <input id="timerMinutes" type="number" min="1" max="180" value="25" />
-                </label>
-
-                <div class="button-row">
-                  <button id="startTimer" class="primary-button" type="button">Старт</button>
-                  <button id="pauseTimer" class="secondary-button" type="button">Пауза</button>
-                  <button id="resetTimer" class="ghost-button" type="button">Сброс</button>
-                </div>
-              </div>
-            </section>
-
-            <section class="card presets-card">
-              <div class="section-heading">
-                <p class="section-label">Быстрый запуск</p>
-                <h2>Популярные режимы</h2>
-              </div>
-              <div class="preset-grid">
-                <button class="preset-button" data-minutes="15">15 мин</button>
-                <button class="preset-button" data-minutes="25">25 мин</button>
-                <button class="preset-button" data-minutes="45">45 мин</button>
-                <button class="preset-button" data-minutes="60">60 мин</button>
-              </div>
-
-              <div class="tip-box">
-                <p>Совет</p>
-                <h3>После каждой длинной сессии делай небольшой перерыв.</h3>
-              </div>
-            </section>
-          </div>
-        </section>
-
-        <section class="tab-panel" id="calendar">
-          <div class="calendar-layout">
-            <section class="card calendar-card">
-              <div class="section-heading section-heading--inline">
-                <div>
-                  <p class="section-label">Планирование</p>
-                  <h2>Календарь месяца</h2>
-                </div>
-                <div class="calendar-nav">
-                  <button id="prevMonth" class="ghost-button" type="button">Назад</button>
-                  <div id="calendarMonthLabel" class="calendar-month-label"></div>
-                  <button id="nextMonth" class="ghost-button" type="button">Далее</button>
-                </div>
-              </div>
-
-              <div class="calendar-weekdays" aria-hidden="true">
-                <span>Пн</span>
-                <span>Вт</span>
-                <span>Ср</span>
-                <span>Чт</span>
-                <span>Пт</span>
-                <span>Сб</span>
-                <span>Вс</span>
-              </div>
-              <div id="calendarGrid" class="calendar-grid"></div>
-            </section>
-
-            <section class="card calendar-sidebar">
-              <div class="section-heading">
-                <p class="section-label">Новое событие</p>
-                <h2>Добавь важную дату</h2>
-              </div>
-
-              <form id="eventForm" class="task-form">
-                <label>
-                  Дата
-                  <input id="eventDate" type="date" required />
-                </label>
-                <label>
-                  Название
-                  <input
-                    id="eventTitle"
-                    type="text"
-                    maxlength="80"
-                    placeholder="Например: защита проекта"
-                    required
-                  />
-                </label>
-                <label>
-                  Заметка
-                  <textarea
-                    id="eventNote"
-                    rows="3"
-                    maxlength="180"
-                    placeholder="Что важно не забыть?"
-                  ></textarea>
-                </label>
-                <button class="primary-button" type="submit">Сохранить событие</button>
-              </form>
-
-              <div class="calendar-selected">
-                <p class="section-label">Выбранный день</p>
-                <h3 id="selectedDateLabel">Выбери дату</h3>
-                <div id="selectedDayList" class="event-list"></div>
-              </div>
-
-              <div class="calendar-selected">
-                <p class="section-label">Ближайшие даты</p>
-                <div id="upcomingEvents" class="event-list"></div>
-              </div>
-            </section>
-          </div>
-        </section>
-
-        <section class="tab-panel" id="insights">
-          <div class="insights-grid">
-            <section class="card insight-card">
-              <p class="section-label">Успеваемость</p>
-              <h2 id="completionRate">0%</h2>
-              <p>Процент завершенных задач</p>
-            </section>
-
-            <section class="card insight-card">
-              <p class="section-label">Сложность</p>
-              <h2 id="hardTasksCount">0</h2>
-              <p>Сложных задач сейчас в списке</p>
-            </section>
-
-            <section class="card insight-card">
-              <p class="section-label">События</p>
-              <h2 id="eventsCount">0</h2>
-              <p>Сохраненных дат в календаре</p>
-            </section>
-
-            <section class="card insight-card insight-card--wide">
-              <p class="section-label">Мини-идеи</p>
-              <h2>Что еще есть на сайте</h2>
-              <ul class="feature-list">
-                <li>Задачи сохраняются в браузере автоматически</li>
-                <li>Можно фильтровать список и быстро менять статус</li>
-                <li>Есть блок прогресса для красивой демонстрации проекта</li>
-              </ul>
-            </section>
-          </div>
-        </section>
-      </main>
+  <body data-page="home">
+    <div class="site-bg">
+      <div class="orb orb--one"></div>
+      <div class="orb orb--two"></div>
+      <div class="grid-glow"></div>
     </div>
 
-    <template id="taskTemplate">
-      <article class="task-item">
-        <div class="task-item__top">
-          <span class="difficulty-badge"></span>
-          <button class="icon-button delete-button" type="button" aria-label="Удалить задачу">
-            ×
-          </button>
-        </div>
-        <h3 class="task-title"></h3>
-        <p class="task-description"></p>
-        <div class="task-meta">
-          <span class="deadline-text"></span>
-          <button class="toggle-status" type="button"></button>
-        </div>
-      </article>
-    </template>
+    <header class="topbar container">
+      <a class="brand" href="index.html">
+        <span class="brand__mark">CP</span>
+        <span>
+          <strong>Career Path Finder</strong>
+          <small>for Students</small>
+        </span>
+      </a>
 
-    <script src="script.js"></script>
+      <nav class="topbar__nav">
+        <a href="index.html">Home</a>
+        <a href="test.html">Career Test</a>
+        <a href="results.html">Results</a>
+        <a href="career.html">Careers</a>
+      </nav>
+
+      <button
+        class="theme-toggle"
+        id="themeToggle"
+        type="button"
+        aria-label="Toggle dark and light mode"
+      >
+        <span class="theme-toggle__thumb"></span>
+      </button>
+    </header>
+
+    <main>
+      <section class="hero container section">
+        <div class="hero__content card reveal">
+          <p class="eyebrow">Future-ready guidance</p>
+          <h1>Find a career path that actually feels like you.</h1>
+          <p class="hero__lead">
+            A polished career discovery platform that blends personality,
+            interests, and strengths into practical next-step guidance for
+            students.
+          </p>
+
+          <div class="hero__actions">
+            <a class="button button--primary" href="test.html">Start the Career Test</a>
+            <a class="button button--ghost" href="results.html">Open Saved Results</a>
+          </div>
+
+          <div class="hero__stats">
+            <article class="metric">
+              <strong>18</strong>
+              <span>Insightful questions</span>
+            </article>
+            <article class="metric">
+              <strong>6</strong>
+              <span>Career roadmaps</span>
+            </article>
+            <article class="metric">
+              <strong>Top 3</strong>
+              <span>Smart matches</span>
+            </article>
+          </div>
+        </div>
+
+        <div class="hero__panel reveal reveal-delay-1">
+          <div class="pulse-card card">
+            <p class="eyebrow">Sample insight</p>
+            <h2>You are 92% compatible with Software Developer</h2>
+            <p>
+              Your blend of analytical thinking, curiosity, and problem-solving
+              points toward careers where building systems and solving complex
+              challenges matters.
+            </p>
+            <div class="mini-bars" aria-hidden="true">
+              <span style="--bar: 92%"></span>
+              <span style="--bar: 84%"></span>
+              <span style="--bar: 76%"></span>
+              <span style="--bar: 64%"></span>
+              <span style="--bar: 58%"></span>
+            </div>
+          </div>
+
+          <div class="signal-card card">
+            <p class="eyebrow">What you unlock</p>
+            <ul class="feature-list">
+              <li>Adaptive recommendations powered by category scoring</li>
+              <li>Career detail pages with salary, skills, and learning steps</li>
+              <li>Charts, saved progress, dark mode, and instant revisit flow</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="container section">
+        <div class="section-heading reveal">
+          <p class="eyebrow">How it works</p>
+          <h2>Built like a modern student product, not a basic quiz.</h2>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card card reveal">
+            <div class="feature-card__icon">01</div>
+            <h3>Take the assessment</h3>
+            <p>
+              Answer 18 thoughtful questions designed to map your tendencies
+              across technology, creativity, business, social, and analytical
+              traits.
+            </p>
+          </article>
+          <article class="feature-card card reveal reveal-delay-1">
+            <div class="feature-card__icon">02</div>
+            <h3>See your compatibility</h3>
+            <p>
+              Our browser-based recommendation engine calculates your strongest
+              career matches and explains why they fit your profile.
+            </p>
+          </article>
+          <article class="feature-card card reveal reveal-delay-2">
+            <div class="feature-card__icon">03</div>
+            <h3>Follow a roadmap</h3>
+            <p>
+              Explore each career in depth with practical skill requirements,
+              salary guidance, and step-by-step learning plans you can start now.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="container section section--split">
+        <div class="section-heading reveal">
+          <p class="eyebrow">Career library</p>
+          <h2>Explore startup-grade career cards crafted for student decision making.</h2>
+        </div>
+
+        <div class="career-preview-grid" id="careerPreviewGrid"></div>
+      </section>
+
+      <section class="container section">
+        <div class="cta-panel card reveal">
+          <div>
+            <p class="eyebrow">Ready to discover your direction?</p>
+            <h2>Take the test, save your results, and revisit them anytime.</h2>
+          </div>
+          <div class="hero__actions">
+            <a class="button button--primary" href="test.html">Begin Test</a>
+            <a class="button button--secondary" href="career.html">Browse Careers</a>
+          </div>
+        </div>
+      </section>
+    </main>
   </body>
 </html>
