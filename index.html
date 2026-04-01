@@ -6,12 +6,12 @@
     <title>Career Path Finder for Students</title>
     <meta
       name="description"
-      content="Discover the best career path for your personality, interests, and skills with an interactive student-friendly career assessment."
+      content="Discover the best career path for your personality, interests, and strengths through a polished student-friendly assessment."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Sora:wght@600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
@@ -19,154 +19,130 @@
     <script src="script.js" defer></script>
   </head>
   <body data-page="home">
-    <div class="site-bg">
-      <div class="orb orb--one"></div>
-      <div class="orb orb--two"></div>
-      <div class="grid-glow"></div>
+    <div class="page-backdrop">
+      <div class="glow glow--left"></div>
+      <div class="glow glow--right"></div>
+      <div class="noise-grid"></div>
     </div>
 
-    <header class="topbar container">
+    <header class="site-header container">
       <a class="brand" href="index.html">
-        <span class="brand__mark">CP</span>
-        <span>
+        <span class="brand__logo">CP</span>
+        <span class="brand__text">
           <strong>Career Path Finder</strong>
-          <small>for Students</small>
+          <small>for students</small>
         </span>
       </a>
 
-      <nav class="topbar__nav">
-        <a href="index.html">Home</a>
-        <a href="test.html">Career Test</a>
-        <a href="results.html">Results</a>
-        <a href="career.html">Careers</a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="index.html" data-nav="home">Home</a>
+        <a href="test.html" data-nav="test">Test</a>
+        <a href="results.html" data-nav="results">Results</a>
+        <a href="career.html" data-nav="career">Careers</a>
       </nav>
 
-      <button
-        class="theme-toggle"
-        id="themeToggle"
-        type="button"
-        aria-label="Toggle dark and light mode"
-      >
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">
         <span class="theme-toggle__thumb"></span>
       </button>
     </header>
 
     <main>
-      <section class="hero container section">
-        <div class="hero__content card reveal">
-          <p class="eyebrow">Future-ready guidance</p>
-          <h1>Find a career path that actually feels like you.</h1>
+      <section class="hero container">
+        <div class="hero__copy surface surface--hero">
+          <p class="eyebrow">Career discovery platform</p>
+          <h1>Find the career path that fits how you think, create, and solve.</h1>
           <p class="hero__lead">
-            A polished career discovery platform that blends personality,
-            interests, and strengths into practical next-step guidance for
-            students.
+            Take a short guided test and get your top 3 career matches with
+            percentages, explanations, category strengths, and step-by-step learning roadmaps.
           </p>
 
           <div class="hero__actions">
-            <a class="button button--primary" href="test.html">Start the Career Test</a>
-            <a class="button button--ghost" href="results.html">Open Saved Results</a>
+            <a class="button button--primary" href="test.html">Start Test</a>
+            <a class="button button--secondary" href="results.html">Open Saved Results</a>
           </div>
 
-          <div class="hero__stats">
-            <article class="metric">
-              <strong>18</strong>
-              <span>Insightful questions</span>
+          <div class="stat-row">
+            <article class="stat-chip">
+              <strong>15</strong>
+              <span>Questions</span>
             </article>
-            <article class="metric">
+            <article class="stat-chip">
+              <strong>5</strong>
+              <span>Strength areas</span>
+            </article>
+            <article class="stat-chip">
               <strong>6</strong>
-              <span>Career roadmaps</span>
-            </article>
-            <article class="metric">
-              <strong>Top 3</strong>
-              <span>Smart matches</span>
+              <span>Career paths</span>
             </article>
           </div>
         </div>
 
-        <div class="hero__panel reveal reveal-delay-1">
-          <div class="pulse-card card">
-            <p class="eyebrow">Sample insight</p>
-            <h2>You are 92% compatible with Software Developer</h2>
-            <p>
-              Your blend of analytical thinking, curiosity, and problem-solving
-              points toward careers where building systems and solving complex
-              challenges matters.
-            </p>
-            <div class="mini-bars" aria-hidden="true">
-              <span style="--bar: 92%"></span>
-              <span style="--bar: 84%"></span>
-              <span style="--bar: 76%"></span>
-              <span style="--bar: 64%"></span>
-              <span style="--bar: 58%"></span>
-            </div>
-          </div>
-
-          <div class="signal-card card">
-            <p class="eyebrow">What you unlock</p>
-            <ul class="feature-list">
-              <li>Adaptive recommendations powered by category scoring</li>
-              <li>Career detail pages with salary, skills, and learning steps</li>
-              <li>Charts, saved progress, dark mode, and instant revisit flow</li>
+        <div class="hero__panel">
+          <article class="surface insight-card">
+            <p class="eyebrow">What you get</p>
+            <h2>More than a quiz</h2>
+            <ul class="stack-list">
+              <li>One-question-at-a-time assessment flow</li>
+              <li>Top 3 ranked matches with fit explanations</li>
+              <li>Dynamic career detail pages and saved progress</li>
             </ul>
-          </div>
+          </article>
+
+          <article class="surface preview-card">
+            <p class="eyebrow">Sample result</p>
+            <div class="preview-card__top">
+              <div>
+                <h3>Software Developer</h3>
+                <p>Strong technology and analytical alignment.</p>
+              </div>
+              <div class="match-badge">91%</div>
+            </div>
+            <div class="mini-strengths">
+              <span style="--fill: 91%"></span>
+              <span style="--fill: 74%"></span>
+              <span style="--fill: 62%"></span>
+              <span style="--fill: 44%"></span>
+              <span style="--fill: 58%"></span>
+            </div>
+          </article>
         </div>
       </section>
 
-      <section class="container section">
-        <div class="section-heading reveal">
+      <section class="section container">
+        <div class="section-head">
           <p class="eyebrow">How it works</p>
-          <h2>Built like a modern student product, not a basic quiz.</h2>
+          <h2>Simple flow, stronger decisions.</h2>
+          <p>
+            The platform scores your answers across five hidden categories and
+            turns that profile into clear, useful career recommendations.
+          </p>
         </div>
 
-        <div class="feature-grid">
-          <article class="feature-card card reveal">
-            <div class="feature-card__icon">01</div>
-            <h3>Take the assessment</h3>
-            <p>
-              Answer 18 thoughtful questions designed to map your tendencies
-              across technology, creativity, business, social, and analytical
-              traits.
-            </p>
+        <div class="steps-grid">
+          <article class="surface step-card">
+            <span class="step-card__index">01</span>
+            <h3>Take the test</h3>
+            <p>Answer one question at a time with a clean guided flow and visible progress.</p>
           </article>
-          <article class="feature-card card reveal reveal-delay-1">
-            <div class="feature-card__icon">02</div>
-            <h3>See your compatibility</h3>
-            <p>
-              Our browser-based recommendation engine calculates your strongest
-              career matches and explains why they fit your profile.
-            </p>
+          <article class="surface step-card">
+            <span class="step-card__index">02</span>
+            <h3>See top matches</h3>
+            <p>Get ranked recommendations, match percentages, and a breakdown of your strengths.</p>
           </article>
-          <article class="feature-card card reveal reveal-delay-2">
-            <div class="feature-card__icon">03</div>
-            <h3>Follow a roadmap</h3>
-            <p>
-              Explore each career in depth with practical skill requirements,
-              salary guidance, and step-by-step learning plans you can start now.
-            </p>
+          <article class="surface step-card">
+            <span class="step-card__index">03</span>
+            <h3>Explore roadmaps</h3>
+            <p>Open dynamic career pages to review skills, salary range, and next learning steps.</p>
           </article>
         </div>
       </section>
 
-      <section class="container section section--split">
-        <div class="section-heading reveal">
+      <section class="section container">
+        <div class="section-head">
           <p class="eyebrow">Career library</p>
-          <h2>Explore startup-grade career cards crafted for student decision making.</h2>
+          <h2>Preview real paths students can explore.</h2>
         </div>
-
-        <div class="career-preview-grid" id="careerPreviewGrid"></div>
-      </section>
-
-      <section class="container section">
-        <div class="cta-panel card reveal">
-          <div>
-            <p class="eyebrow">Ready to discover your direction?</p>
-            <h2>Take the test, save your results, and revisit them anytime.</h2>
-          </div>
-          <div class="hero__actions">
-            <a class="button button--primary" href="test.html">Begin Test</a>
-            <a class="button button--secondary" href="career.html">Browse Careers</a>
-          </div>
-        </div>
+        <div class="career-grid" id="careerPreviewGrid"></div>
       </section>
     </main>
   </body>
