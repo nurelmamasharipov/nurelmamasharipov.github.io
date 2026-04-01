@@ -6,12 +6,12 @@
     <title>Career Test | Career Path Finder for Students</title>
     <meta
       name="description"
-      content="Take the Career Path Finder assessment and discover your strongest career matches."
+      content="Complete the career test and discover which career paths best fit your strengths."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700;800&family=Sora:wght@600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
@@ -19,130 +19,100 @@
     <script src="script.js" defer></script>
   </head>
   <body data-page="test">
-    <div class="site-bg">
-      <div class="orb orb--one"></div>
-      <div class="orb orb--two"></div>
-      <div class="grid-glow"></div>
+    <div class="page-backdrop">
+      <div class="glow glow--left"></div>
+      <div class="glow glow--right"></div>
+      <div class="noise-grid"></div>
     </div>
 
-    <header class="topbar container">
+    <header class="site-header container">
       <a class="brand" href="index.html">
-        <span class="brand__mark">CP</span>
-        <span>
+        <span class="brand__logo">CP</span>
+        <span class="brand__text">
           <strong>Career Path Finder</strong>
-          <small>for Students</small>
+          <small>for students</small>
         </span>
       </a>
 
-      <nav class="topbar__nav">
-        <a href="index.html">Home</a>
-        <a href="test.html">Career Test</a>
-        <a href="results.html">Results</a>
-        <a href="career.html">Careers</a>
+      <nav class="nav" aria-label="Main navigation">
+        <a href="index.html" data-nav="home">Home</a>
+        <a href="test.html" data-nav="test">Test</a>
+        <a href="results.html" data-nav="results">Results</a>
+        <a href="career.html" data-nav="career">Careers</a>
       </nav>
 
-      <button
-        class="theme-toggle"
-        id="themeToggle"
-        type="button"
-        aria-label="Toggle dark and light mode"
-      >
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">
         <span class="theme-toggle__thumb"></span>
       </button>
     </header>
 
-    <main class="container section">
-      <div class="saved-banner card is-hidden" id="savedBanner">
+    <main class="container page-section">
+      <section class="surface saved-banner is-hidden" id="savedBanner">
         <div>
           <p class="eyebrow">Saved progress</p>
-          <h3>Your answers are stored in this browser.</h3>
-          <p>You can continue where you left off or clear everything and start fresh.</p>
+          <h3>You already started this test.</h3>
+          <p>Continue from your saved answers or clear them and start from the beginning.</p>
         </div>
-        <div class="saved-banner__actions">
+        <div class="action-row">
           <button class="button button--secondary" id="continueSaved" type="button">Continue</button>
-          <button class="button button--ghost" id="clearSaved" type="button">Clear Saved Data</button>
+          <button class="button button--ghost" id="clearSaved" type="button">Clear</button>
         </div>
-      </div>
+      </section>
 
-      <div class="layout-test">
-        <section class="question-card card reveal">
-          <div class="question-card__top">
+      <section class="test-layout">
+        <article class="surface question-shell">
+          <div class="question-shell__head">
             <div>
-              <p class="eyebrow" id="questionNumber">Question 1</p>
-              <h1 id="questionText">Loading question...</h1>
+              <p class="eyebrow" id="questionStep">Question 1 of 15</p>
+              <h1 id="questionTitle">Loading question...</h1>
             </div>
-            <span class="tag">4 options</span>
+            <span class="pill" id="progressSummary">0% complete</span>
           </div>
 
-          <div class="progress-wrap">
+          <div class="progress-block">
             <div class="progress-bar" aria-hidden="true">
               <div class="progress-bar__fill" id="progressFill"></div>
             </div>
-            <div class="progress-meta">
-              <span id="progressLabel">0% complete</span>
-              <span id="progressCount">0/18 answered</span>
+            <div class="progress-copy-row">
+              <span id="progressCount">0/15 answered</span>
+              <span id="questionPrompt">Choose the option that feels most like you.</span>
             </div>
           </div>
 
-          <p class="progress-copy" id="questionPrompt">
-            Choose the answer that feels most natural to you.
-          </p>
+          <div class="option-stack" id="optionList"></div>
+          <p class="form-note is-hidden" id="supportNote"></p>
 
-          <div class="option-list" id="optionList"></div>
-
-          <p class="tag support-note is-hidden" id="supportNote"></p>
-
-          <div class="test-actions">
+          <div class="action-row action-row--spread">
             <button class="button button--ghost" id="prevQuestion" type="button">Previous</button>
-            <button class="button button--secondary" id="nextQuestion" type="button">Next Question</button>
-            <button class="button button--primary" id="submitTest" type="button" hidden>
-              See My Results
-            </button>
+            <div class="action-row">
+              <button class="button button--secondary" id="nextQuestion" type="button">Next</button>
+              <button class="button button--primary" id="submitTest" type="button" hidden>See Results</button>
+            </div>
           </div>
-        </section>
+        </article>
 
-        <aside class="sidebar-stack reveal reveal-delay-1">
-          <article class="panel-card">
-            <p class="eyebrow">Live trait preview</p>
-            <h3>Your pattern is taking shape.</h3>
-            <p>
-              As you answer, these bars estimate which strengths are rising to
-              the top.
-            </p>
-            <div class="trait-bars" id="traitBars"></div>
+        <aside class="sidebar-column">
+          <article class="surface helper-card">
+            <p class="eyebrow">Strength preview</p>
+            <h3>Your profile updates as you answer.</h3>
+            <div class="strength-list" id="traitBars"></div>
           </article>
 
-          <article class="panel-card">
-            <p class="eyebrow">What happens next</p>
-            <ul class="benefit-list">
-              <li>We score your answers across five hidden categories.</li>
-              <li>We calculate your top three best-fit careers.</li>
-              <li>We save your results so you can revisit them later.</li>
-            </ul>
-          </article>
-
-          <article class="panel-card">
-            <p class="eyebrow">Need a reset?</p>
-            <h3>Start over anytime.</h3>
-            <p>
-              If your answers no longer feel accurate, wipe the current test and
-              retake it with one tap.
-            </p>
+          <article class="surface helper-card">
+            <p class="eyebrow">Need to restart?</p>
+            <h3>Retake the assessment anytime.</h3>
+            <p>Your answers and results are stored locally in the browser.</p>
             <button class="button button--ghost" id="restartTest" type="button">Restart Test</button>
           </article>
         </aside>
-      </div>
+      </section>
     </main>
 
-    <div class="loading-screen is-hidden" id="loadingScreen" aria-live="polite">
-      <div class="loading-card">
-        <div class="loading-spinner"></div>
-        <p class="eyebrow">Analyzing your future fit</p>
-        <h3>Finding your strongest career matches...</h3>
-        <p>
-          We are scoring your hidden strengths and building your personalized
-          recommendations.
-        </p>
+    <div class="overlay is-hidden" id="loadingScreen" aria-live="polite">
+      <div class="surface overlay-card">
+        <div class="spinner"></div>
+        <p class="eyebrow">Calculating results</p>
+        <h3>Matching you with the best career paths...</h3>
       </div>
     </div>
   </body>
