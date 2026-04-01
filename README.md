@@ -1,1 +1,1 @@
-# nurelmamasharipov.gtihub.io
+# nurelmamasharipov.github.io
